@@ -19,3 +19,8 @@ const userSchema = new mongoose.Schema(
 )
 
 //User Model
+const User = mongoose.model('User',userSchema)
+
+export default User
+
+//now we will create webhooks function to get data from clerk
