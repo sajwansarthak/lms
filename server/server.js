@@ -1,10 +1,14 @@
 import express  from "express";
 import cors from "cors";
 import 'dotenv/config'
+import connectdb from "./configs/mongodb.js";
 
 
 //Initializing Express
 const app = express()
+
+//Connect to database
+await connectdb()
 
 //Middleware 
 // So that we can connect our backend with any other domian
