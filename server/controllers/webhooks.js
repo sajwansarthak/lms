@@ -9,11 +9,11 @@ export const clerkWebhooks = async (req,res) =>{
         const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
 
         //verify the headers
-        await whook.verify(JSON.stringify(req.body),{
+        await whook.verify(req.body),{
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"]
-        })
+        }
 
         const {data,type} = req.body
 
@@ -33,7 +33,7 @@ export const clerkWebhooks = async (req,res) =>{
 
             case 'user.updated':{
                 const userData = {
-                    email: data.email_address[0].email_address,
+                    email: data.email_addresses[0].email_address,
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.image_url,
                 }
