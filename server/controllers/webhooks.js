@@ -6,7 +6,6 @@ import User from '../models/user.js';
 
 
 export const clerkWebhooks = async (req,res) =>{
-    console.log("🔥 WEBHOOK HIT");
     try{
         const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
 
@@ -21,7 +20,6 @@ export const clerkWebhooks = async (req,res) =>{
 
         switch(type){
             case 'user.created':{
-                console.log("👉 Creating user:", data.id);
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
