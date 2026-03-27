@@ -16,7 +16,7 @@ await connectdb()
 // So that we can connect our backend with any other domian
 app.use(cors())
 app.use(express.json())
-//using clerk middleware to get auth so we can use it to get userid for other routes
+//using clerk middleware to get auth so we can use it to get userid for other routes to test this api we need auth token to get it we have to go to client->src->context->appcontext.jsx
 app.use(clerkMiddleware())
 
 //Routes
