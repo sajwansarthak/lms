@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from "react";
 import { dummyCourses } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from 'humanize-duration'
+import {useAuth,useUser} from '@clerk/clerk-react'
 
 //A global storage box that any component can access.
 export const AppContext = createContext()
@@ -30,6 +31,9 @@ export const AppContextProvider = (props) =>{
         setAllCourses(dummyCourses)
         //now pass allCourses in const value so it can be used anywhere in the project
     }
+    //Getting auth token for authentication and clerk middlerware for the backend
+    const {getToken} = useAuth()
+    const {user} = useUser() //now we will create a useEffect for this 
 
     //Function to calculate average rating of course
     const calculateRating = (course) =>{
@@ -82,6 +86,18 @@ export const AppContextProvider = (props) =>{
         fetchAllCourses()
         fetchUserEnrolledCourses()
     },[])
+
+    //function to diaplay token
+    const logToken = async () =>{
+        // this will display the token in frontend console
+        console.log(await getToken())
+    }
+    //useEffect to get auth token
+    useEffect(() =>{
+        if(user){
+            logToken()
+        }
+    },[user])
 
     
     //This is the data you want to share globally.
