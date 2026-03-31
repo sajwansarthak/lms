@@ -5,12 +5,15 @@ import connectdb from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 import educatorRouter from "./routes/educatorRoutes.js";
 import {clerkMiddleware} from '@clerk/express'
+import connectCloudinary from "./configs/cloudinary.js";
 
 //Initializing Express
 const app = express()
 
 //Connect to database
 await connectdb()
+//Connect to Cloudinary
+await connectCloudinary()
 
 //Middleware 
 // So that we can connect our backend with any other domian
@@ -30,6 +33,7 @@ app.get('/', (req,res) =>{
 app.post('/clerk', express.json(), clerkWebhooks)
 //Educator Route from routes => educatorRoutes
 app.use('/api/educator',express.json(), educatorRouter)
+
 
 //Port 
 const PORT = process.env.PORT || 3000
