@@ -1,4 +1,6 @@
 import {clerkClient} from '@clerk/express'
+import Course from '../models/course';
+import { v2 as cloudinary } from 'cloudinary'
 
 
 
@@ -21,5 +23,40 @@ export const updateRoleToEducator = async (req,res) =>{
         res.json({success: true, message: 'You can publish a course now'})
     }catch(error){
         res.json({success: false, message: error.message})
+    }
+}
+
+//Add New Course function
+
+export const addCourse = async(req,res) =>{
+    try{
+        // We will get coursedata from request.body
+        const {courseData} = req.body
+        const imagefile = req.file
+        //we will require educator id 
+        const authData = req.auth()
+        const educatorId = authData.userId
+
+        //checking if we have imagefile or not
+        if(!imagefile){
+            return res.json({success:false,message:'Thumbnail Not Attached'})
+        }
+
+        //Parsing courseData now we have complete course data along with educator id 
+        const parsedCourseData = await JSON.parse(courseData)
+        parsedCourseData.educator = educatorId
+
+        // now we can store this data in database
+        const newCourse = await Course.create(parsedCourseData)
+        //Now we have added the course but not the image for that we have to upload the image in cloudinary to get the imageUrl 
+        const imageUpload = await cloudinary.uploader.upload(imagefile.path)
+        //Now in the imageUpload we will get a public url we will store it as imageUpload.secure_url and add it to our new course
+        newCourse.courseThumbnail = imageUpload.secure_url
+        //To Save new course to database
+        await newCourse.save()
+
+        res.json({success:true , message: 'Course Added'})
+    }catch(error){
+        res.json({success:false, message: error.message})
     }
 }

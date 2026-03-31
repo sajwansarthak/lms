@@ -9,3 +9,6 @@ const connectCloudinary = async () => {
         api_secret: process.env.CLOUDINARY_SECRET_KEY,
     })
 }
+
+// now export the function and call it in server.js
+export default connectCloudinary
