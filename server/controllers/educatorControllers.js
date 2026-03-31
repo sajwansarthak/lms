@@ -60,3 +60,18 @@ export const addCourse = async(req,res) =>{
         res.json({success:false, message: error.message})
     }
 }
+
+//Get Educator Courses
+export const getEducatorCourses = async(req,res) =>{
+    try{
+        const authdata = req.auth()
+        const educator = authdata.userId
+
+
+        const courses = await Course.find({educator})
+        res.json({success:true,courses})
+    }catch(error){
+        res.json({success:false, message: error.message})
+    }
+    //Now create a route for it in educatorRoutes.js
+}
