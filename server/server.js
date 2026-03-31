@@ -7,6 +7,7 @@ import educatorRouter from "./routes/educatorRoutes.js";
 import {clerkMiddleware} from '@clerk/express'
 import connectCloudinary from "./configs/cloudinary.js";
 
+
 //Initializing Express
 const app = express()
 

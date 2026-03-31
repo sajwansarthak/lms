@@ -1,5 +1,5 @@
 import {clerkClient} from '@clerk/express'
-import Course from '../models/course';
+import Course from '../models/course.js';
 import { v2 as cloudinary } from 'cloudinary'
 
 

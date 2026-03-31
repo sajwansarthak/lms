@@ -41,3 +41,10 @@ const courseSchema = new mongoose.Schema({
     ],
     //minimize false means if we dont provide any value for courserating enrolledstudent then it will create these values.
 },{timestamps: true, minimize: false});
+
+// Now using this Schema we will create our courseModel 
+//In educatorController create add course function
+const Course = mongoose.model('Course',courseSchema)
+
+
+export default Course

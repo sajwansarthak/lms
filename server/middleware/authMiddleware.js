@@ -1,8 +1,9 @@
 //Middleware so that only educator can add course and no one else
 import {clerkClient} from '@clerk/express'
 
+
 //Middleware protect educator Routes
-export const protectEducator = async (req,res) =>{
+export const protectEducator = async (req,res,next) =>{
     try{
         const authdata = req.auth();
         const userId = authdata.userId
@@ -13,7 +14,7 @@ export const protectEducator = async (req,res) =>{
             return res.json({ success:false, message: 'Unauthorized Access'})
         }
 
-        next ()
+        next();
     }catch(error){
         res.json({success:false,message: error.message})
     }
