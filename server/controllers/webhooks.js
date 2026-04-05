@@ -64,8 +64,6 @@ export const clerkWebhooks = async (req,res) =>{
 
 
 //Stripe Webhook
-
-import Stripe from "stripe";
 import { buffer } from "micro";
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
