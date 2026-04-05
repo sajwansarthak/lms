@@ -6,7 +6,7 @@ export const getUserData = async (req,res) =>{
         //verifying the user and finding user in db
         const authdata = req.auth()
         const userId = authdata.userId
-        const user = await User.findById({userId})
+        const user = await User.findById(userId)
 
         //Response if we don't have the user
         if(!user){
@@ -23,7 +23,7 @@ export const userEnrolledCourses = async (req,res) =>{
     try{
         const authdata = req.auth()
         const userId = authdata.userId
-        const userData = await User.findById({userId}).populate('enrolledCourses')
+        const userData = await User.findById(userId).populate('enrolledCourses')
 
         res.json({success:true, enrolledCourses: userData.enrolledCourses})
     }catch(error){
