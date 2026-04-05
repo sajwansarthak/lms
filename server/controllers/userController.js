@@ -1,4 +1,6 @@
 import User from "../models/user.js"
+import Course from "../models/course.js"
+import { Purchase } from "../models/purchase.js"
 
 //Here we will create a controller function to get userData
 export const getUserData = async (req,res) =>{
@@ -28,5 +30,36 @@ export const userEnrolledCourses = async (req,res) =>{
         res.json({success:true, enrolledCourses: userData.enrolledCourses})
     }catch(error){
         res.json({success:false, message: error.message})
+    }
+}
+//Purchase Course
+
+export const purchaseCourse = async (req,res) =>{
+    try{
+        const {courseId} = req.body
+        const {origin} = req.headers 
+        const authdata = req.auth()
+        const userId = authdata.userId
+        //Now using this userid we have to find userdata
+        const userData = await User.findById(userId)
+        //Getting CourseData
+        const courseData = await Course.findById(courseId)
+
+        //Checking if we have userdata and courseData available
+        if(!userData || !courseData){
+            return res.json({success:false, message: 'Data Not Found'})
+        }
+
+        //If we have both user and course data available then we will create purchaseData 
+        const purchaseData = {
+            courseId: courseData._id,
+            userId,
+            amount: (courseData.coursePrice - courseData.discount * courseData.coursePrice / 100).toFixed(2),
+        }
+        //Added the purchase data now we have to add it to mongodb
+        const newPurchase = await Purchase.create(purchaseData)
+
+    }catch(error){
+
     }
 }
