@@ -13,3 +13,22 @@ export const getAllCourses = async (req,res) =>{
     }
 }
 
+//Get Course by Id
+export const getCourseById = async (req,res) =>{
+    const {id} = req.params
+    try{
+        const courseData = await Course.findById(id).populate({path:'educator'})
+        //Here we will get all the chapters and lectures of the individual course but from that we have to remove chapter url if preview is not free 
+        //Remove lectureUrl if idPreview is false
+        courseData.courseContent.forEach(chapter => {
+            chapter.chapterContent.forEach(lecture =>{
+                if(!lecture.isPreviewFree){
+                    lecture.lectureUrl = "";
+                }
+            })
+        })
+        res.json({success:true , courseData})
+    }catch(error){
+        res.json({success:false ,message: error.message})
+    }
+}
