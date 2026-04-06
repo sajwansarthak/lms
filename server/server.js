@@ -21,13 +21,12 @@ await connectCloudinary()
 //Middleware 
 // So that we can connect our backend with any other domian
 app.use(cors())
-app.use(express.json())
 //using clerk middleware to get auth so we can use it to get userid for other routes to test this api we need auth token to get it we have to go to client->src->context->appcontext.jsx
 app.use(clerkMiddleware())
 
 //Routes
 //Default Route
-app.get('/', (req,res) =>{
+app.get('/',express.json(), (req,res) =>{
     res.json({
         message: "API Working",
     })
@@ -42,8 +41,6 @@ app.use('/api/course',express.json(),courseRouter)
 app.use('/api/user',express.json(),userRouter)
 //Stripe 
 app.post('/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
-
-
 //Port 
 const PORT = process.env.PORT || 3000
 
