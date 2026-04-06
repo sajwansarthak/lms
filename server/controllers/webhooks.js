@@ -78,8 +78,6 @@ export const stripeWebhooks = async (request, response) => {
   catch (err) {
     response.status(400).send(`Webhook Error: ${err.message}`);
   }
-  //checking 
-  console.log("🔥 Event received:", event.type);
 
   // Handle the event
   switch (event.type) {
@@ -110,8 +108,6 @@ export const stripeWebhooks = async (request, response) => {
       purchaseData.status = 'Completed'
       await purchaseData.save()
 
-      //checking 
-      console.log("✅ Payment completed & enrolled");
       break;}
     case 'payment_intent.payment_failed':{
       const paymentIntent = event.data.object;
