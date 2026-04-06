@@ -2,6 +2,7 @@ import User from "../models/user.js"
 import Course from "../models/course.js"
 import { Purchase } from "../models/purchase.js"
 import Stripe from 'stripe'
+import { CourseProgress } from "../models/hostProgress.js"
 
 //Here we will create a controller function to get userData
 export const getUserData = async (req,res) =>{
@@ -94,3 +95,38 @@ export const purchaseCourse = async (req,res) =>{
         res.json({success:false, message: error.message})
     }
 }
+
+//Update User Course Progress
+export const updateUserCourseProgress = async (req,res) =>{
+    try{
+        //Getting verified userId 
+        const authdata = req.auth()
+        const userId = authdata.userId
+        //We will get the courseId and lectureId from the body 
+        const {courseId,lectureId} =req.body
+
+        //From courseProgressModel we have to find progressData
+        const progressData = await CourseProgress.findOne({userId,courseId})
+
+        if(progressData){
+            if(progressData.lectureCompleted.includes(lectureId)){
+                return res.json({success: true,message: 'Lecture Already Completed'})
+            }
+            //If not completed then we have to put progress in db
+            progressData.lectureCompleted.push(lectureId)
+            await progressData.save()
+            //if we dont have progressData then fo to else
+        } else{
+            await CourseProgress.create({
+                userId,
+                courseId,
+                lectureCompleted: [lectureId],
+            })
+        }
+        res.json({success: true , message: 'Progress Updated'})
+
+    }catch(error){
+        res.json({success: false, message: error.message})
+    }
+} 
+ 
