@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import humanizeDuration from 'humanize-duration'
 import {useAuth,useUser} from '@clerk/clerk-react'
 import axios from 'axios'
+import toast from 'react-toastify'
 
 //A global storage box that any component can access.
 export const AppContext = createContext()
@@ -45,9 +46,10 @@ export const AppContextProvider = (props) =>{
                 setAllCourses(data.courses)
             }else{
                 //Get react-toastify from its docs import it and get its container
+                toast.error(data.message)
             }
-        }catch{
-
+        }catch(error){
+            toast.error(data.message)
         }
     }
     //Getting auth token for authentication and clerk middlerware for the backend
