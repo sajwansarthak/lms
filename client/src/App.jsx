@@ -12,8 +12,11 @@ import Dashboard from './pages/educator/Dashboard'
 import MyCourses from './pages/educator/MyCourses'
 import StuEnrolled from './pages/educator/StuEnrolled'
 import Navbar from './components/student/navbar'
+//importing toast container To get success or fail response notification after api call 
+import {ToastContainer} from 'react-toastify'
 //imporitng quilljs with snow theme got it from quilljs documentation
 import "quill/dist/quill.snow.css";
+
 
 
 
@@ -24,6 +27,8 @@ const App = () => {
 
   return (
     <div className='text-default bg-white min-h-screen'>
+      {/* Adding toast container so that we can use it throughout the project */}
+      <ToastContainer />
       {!isEducatorRoute && <Navbar />}
       <Routes>
         {/* Students */}

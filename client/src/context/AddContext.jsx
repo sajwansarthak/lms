@@ -4,12 +4,17 @@ import { dummyCourses } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from 'humanize-duration'
 import {useAuth,useUser} from '@clerk/clerk-react'
+import axios from 'axios'
 
 //A global storage box that any component can access.
 export const AppContext = createContext()
 
 //It wraps your whole app and provides data to all child components.
 export const AppContextProvider = (props) =>{
+
+
+    //Getting backend URL for axios connecting backend to frontend
+    const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 
     //Adding currency first we will declare it then we will add it in const value so it can be used anywhere
@@ -28,8 +33,22 @@ export const AppContextProvider = (props) =>{
     //fetch all courses
     const fetchAllCourses = async ()=>{
         //here we have to store data from assets file in the state defined above
-        setAllCourses(dummyCourses)
+        //setAllCourses(dummyCourses)
         //now pass allCourses in const value so it can be used anywhere in the project
+
+        //After backend completed
+        try{
+            //provide backend url
+            const {data} = await axios.get(backendUrl + '/api/course/all')
+
+            if(data.success){
+                setAllCourses(data.courses)
+            }else{
+                //Get react-toastify from its docs import it and get its container
+            }
+        }catch{
+
+        }
     }
     //Getting auth token for authentication and clerk middlerware for the backend
     const {getToken} = useAuth()
