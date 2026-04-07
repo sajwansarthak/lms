@@ -144,3 +144,43 @@ export const getUserCourseProgress = async (req,res) =>{
         res.json({success :false, message: error.message})
     }
 }
+//Add User Ratings to Course
+export const addUserRating = async (req,res)=>{
+    const authdata = req.auth()
+        const userId = authdata.userId
+        const {courseId,rating} = req.body
+
+        // checking if we have userId,courseId,rating
+        if(!courseId || !userId || !rating || rating < 1 || rating>5){
+            return res.json({success:false, message: 'Invalid Details'})
+        }
+    try{
+        //Now we will find course by the Id
+        const course = await Course.findById(courseId)
+
+        if(!course){
+            return res.json({success:false, message: 'Course Not Found'})
+        }
+        //Finding User 
+        const user = await User.findById(userId)
+
+        if(!user || !user.enrolledCourses.includes(courseId)){
+            return res.json({success:false , message: 'User has not purchased this course.'})
+        }
+        //Now we will check if we have already rated the course
+        const existingRatingIndex = course.courseRating.findIndex(r => r.userId === userId)
+        
+        if(existingRatingIndex > -1){
+            course.courseRating[existingRatingIndex].rating = rating
+            //else if user have not given rating earlier 
+        }else{
+            course.courseRating.push({userId,rating})
+        }
+        //saving it to database
+        await course.save()
+
+        return res.json({success: true, message:'Rating Added'})
+    }catch(error){
+        return res.json({success:false, message: error.message})
+    }
+}
