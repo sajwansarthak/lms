@@ -1,6 +1,5 @@
 //This is used to create global state.
 import { createContext, useEffect, useState } from "react";
-import { dummyCourses } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from 'humanize-duration'
 import {useAuth,useUser} from '@clerk/clerk-react'
@@ -63,12 +62,13 @@ export const AppContextProvider = (props) =>{
     const fetchUserData = async () =>{
 
 
-        if(user.publicMetadata.role === 'educator'){
+        if(user?.publicMetadata?.role === 'educator'){
             setIsEducator(true)
+        } else {
+            setIsEducator(false)
         }
         try{
             const token = await getToken()
-            console.log("Token:", token)
             const {data} = await axios.get(backendUrl + '/api/user/data',{headers:{
                 Authorization: `Bearer ${token}`
             }})
@@ -85,17 +85,14 @@ export const AppContextProvider = (props) =>{
     }
 
     //Function to calculate average rating of course
+    const getCourseRatingsList = (course) =>
+        course?.courseRating ?? course?.courseRatings ?? []
+
     const calculateRating = (course) =>{
-        //if the course has no rating 
-        if(!course.courseRatings || course.courseRatings.length === 0 ){
-            return 0;
-        }
-        //calculating the rating 
-        let totalRating = 0 
-        course.courseRatings.forEach(rating =>{
-            totalRating += rating.rating
-        })
-        return Math.floor(totalRating / course.courseRatings.length)
+        const ratings = getCourseRatingsList(course)
+        if (!ratings.length) return 0
+        const totalRating = ratings.reduce((sum, r) => sum + r.rating, 0)
+        return Math.floor(totalRating / ratings.length)
     }
     //Fucntion to Calculate course chapter time
     const calculateChapterTime = (chapter) =>{
@@ -135,13 +132,9 @@ export const AppContextProvider = (props) =>{
             const token = await getToken()
             const {data} = await axios.get(backendUrl + '/api/user/enrolled-courses',{headers: {Authorization: `Bearer ${token}`}})
 
-            //checking
-            const allUsers = await User.find({}, { _id: 1 })
-            console.log("DB userIds:", JSON.stringify(allUsers))
-
             if(data.success){
-                //It will show new courses to the top
-                setEnrolledCourses(data.enrolledCourses.reverse())
+                const list = Array.isArray(data.enrolledCourses) ? data.enrolledCourses : []
+                setEnrolledCourses([...list].reverse())
             }else{
                 toast.error(data.message)
             }
@@ -175,7 +168,7 @@ export const AppContextProvider = (props) =>{
     
     //This is the data you want to share globally.
     const value = {
-        currency,allCourses,navigate,calculateRating,isEducator,setIsEducator,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,enrolledCourses,fetchUserEnrolledCourses,backendUrl,userData,setUserData,getToken,fetchAllCourses
+        currency,allCourses,navigate,calculateRating,getCourseRatingsList,isEducator,setIsEducator,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,enrolledCourses,fetchUserEnrolledCourses,backendUrl,userData,setUserData,getToken,fetchAllCourses
     }
     
     //	All components wrapped inside this provider

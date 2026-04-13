@@ -1,20 +1,40 @@
-import React, { useEffect, useState } from 'react'
-// importing dummy student data
-import { dummyStudentEnrolled } from '../../assets/assets'
+import React, { useContext, useEffect, useState } from 'react'
 import Loading from '../../components/student/Loading'
+import { AppContext } from '../../context/AddContext'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 
 
 const StuEnrolled = () => {
 
+  const { backendUrl, getToken } = useContext(AppContext)
   const [enrolledStudents,setEnrolledStudents] = useState(null)
-  // function to fetch and store data in setEnrolledStudents
-  const fetchEnrolledStudents = async () =>{
-    setEnrolledStudents(dummyStudentEnrolled)
-  }
+
   useEffect(() =>{
+    let cancelled = false
+    const fetchEnrolledStudents = async () =>{
+      try {
+        const token = await getToken()
+        const { data } = await axios.get(`${backendUrl}/api/educator/enrolled-students`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (cancelled) return
+        if (data.success) setEnrolledStudents(data.enrolledStudents ?? [])
+        else {
+          setEnrolledStudents([])
+          toast.error(data.message)
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setEnrolledStudents([])
+          toast.error(e.message)
+        }
+      }
+    }
     fetchEnrolledStudents()
-  },[])
+    return () => { cancelled = true }
+  }, [backendUrl, getToken])
 
   return enrolledStudents ?(
     <div className='min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>

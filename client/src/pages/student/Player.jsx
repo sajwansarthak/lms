@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { assets } from '../../assets/assets'
 import humanizeDuration from 'humanize-duration'
 import YouTube from 'react-youtube'
-import Footer from '../../components/student/footer'
+import Footer from '../../components/student/Footer'
 import Rating from '../../components/student/Rating'
 
 function Player() {
@@ -16,17 +16,12 @@ function Player() {
   //To get individual course data
   const [courseData,setCourseData] = useState(null)
   //function to get individual course data
-  const getCourseData = () =>{
-    enrolledCourses.map((course) => {
-      if(course._id === courseId){
-        setCourseData(course)
-      }
-    })
-  }
-  // to execute getCourseData whenever the component gets mounted we have to create useEffect
+  const [completedLectures, setCompletedLectures] = useState(() => new Set())
+
   useEffect(() =>{
-    getCourseData()
-  },[enrolledCourses])
+    const found = enrolledCourses.find((course) => String(course._id) === String(courseId))
+    setCourseData(found ?? null)
+  },[enrolledCourses, courseId])
   // Another state variale for toggle function 
   const [openSection,setOpenSection] =useState({ })
   //Toogle function 
@@ -71,7 +66,7 @@ function Player() {
                             <ul className='list-disc md:pl-10 pl-4 pr-4 py-2 text-gray-600 border-t border-gray-300'>
                                 {chapter.chapterContent.map((lecture,i) =>(
                                     <li key={i} className='flex items-start gap-2 py-1'>
-                                        <img src={false ? assets.blue_tick_icon : assets.play_icon} alt="play icon" className='w-4 h-4 mt-1'/>
+                                        <img src={completedLectures.has(lecture.lectureId) ? assets.blue_tick_icon : assets.play_icon} alt="play icon" className='w-4 h-4 mt-1'/>
                                         {/* lecture title */}
                                         <div className='flex items-center justify-between w-full text-gray-800 text-sm md:text-default'>
                                             <p>{lecture.lectureTitle}</p>
@@ -110,7 +105,16 @@ function Player() {
               {/* Displaying chapter name lecture and title */}
               <p>{playerData.chapter}.{playerData.lecture}.{playerData.lectureTitle}</p>
               {/* button to mark if completed */}
-              <button className='text-blue-600'>{false ? 'Completed':'Mark Complete'}</button>
+              <button
+                type="button"
+                className='text-blue-600'
+                onClick={() => {
+                  if (!playerData?.lectureId) return
+                  setCompletedLectures((prev) => new Set(prev).add(playerData.lectureId))
+                }}
+              >
+                {playerData && completedLectures.has(playerData.lectureId) ? 'Completed' : 'Mark Complete'}
+              </button>
             </div>
           </div>
         )

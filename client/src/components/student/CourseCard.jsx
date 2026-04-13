@@ -7,10 +7,10 @@ import Rating from './Rating'
 function CourseCard({course}) {
 
 
-    const { currency,calculateRating } = useContext(AppContext)
+    const { currency,calculateRating,getCourseRatingsList } = useContext(AppContext)
+    const ratingsList = getCourseRatingsList(course)
 
-    // ✅ Precompute rating safely ABOVE return
-    const rating = course.courseRatings?.length > 0 ? calculateRating(course) : 0
+    const rating = ratingsList.length > 0 ? calculateRating(course) : 0
 
 
   return (
@@ -34,7 +34,7 @@ function CourseCard({course}) {
                 {[...Array(5)].map((_,i) => (<img className='w-3.5 h-3.5' key={i} src={i < Math.floor(calculateRating(course)) ? assets.star : assets.star_blank} alt='' />) )}
             </div>
             {/* number of ratings */}
-            <p className='text-gray-500'>{course.courseRatings?.length ?? 0}</p>
+            <p className='text-gray-500'>{ratingsList.length}</p>
         </div>
         {/* course price for currency we will decalre it in .env file  */}
         <p className='text-base font-semibold text-gray-800'>{currency}{(course.coursePrice - course.discount * course.coursePrice / 100).toFixed(2)}</p>

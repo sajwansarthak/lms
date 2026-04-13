@@ -4,7 +4,7 @@ import Companies from '../../components/student/Companies'
 import CoursesSection from '../../components/student/CoursesSection'
 import Tetimonials from '../../components/student/Tetimonials'
 import Calltoaction from '../../components/student/Calltoaction'
-import Footer from '../../components/student/footer'
+import Footer from '../../components/student/Footer'
 
 
 function Home() {

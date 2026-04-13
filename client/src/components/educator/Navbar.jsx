@@ -1,6 +1,5 @@
 import React from 'react'
-//importing dummy data for educator for now 
-import { assets, dummyEducatorData } from '../../assets/assets';
+import { assets } from '../../assets/assets';
 //importing from clerk for authentication
 //UserButton is a prebuilt UI component that shows the logged-in user’s profile avatar.
 //useUser is a React hook that gives you information about the currently logged-in user.
@@ -9,7 +8,6 @@ import { Link } from 'react-router-dom';
 
 
 const Navbar = () => {
-  const educatorData = dummyEducatorData
   const {user} = useUser()
 
   return (

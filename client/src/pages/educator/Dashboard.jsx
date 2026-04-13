@@ -1,27 +1,54 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AddContext'
-import { assets, dummyDashboardData } from '../../assets/assets'
+import { assets } from '../../assets/assets'
 import Loading from '../../components/student/Loading'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 function Dashboard() {
 
 
   // importing already declared elements from addcontext.jsx
-  const { currency } =useContext(AppContext)
+  const { currency, backendUrl, getToken } =useContext(AppContext)
 
   // State variable to store dashboard data
   const [dashboardData, setDashboardData] = useState(null)
+  const [loaded, setLoaded] = useState(false)
 
-  // function to get/store dashboardData
-  const fetchDashboardData = async () =>{
-    setDashboardData(dummyDashboardData)
-  }
   useEffect(() =>{
+    let cancelled = false
+    const fetchDashboardData = async () =>{
+      try {
+        const token = await getToken()
+        const { data } = await axios.get(`${backendUrl}/api/educator/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (cancelled) return
+        if (data.success) setDashboardData(data.dashboardData)
+        else {
+          setDashboardData(null)
+          toast.error(data.message)
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setDashboardData(null)
+          toast.error(e.message)
+        }
+      } finally {
+        if (!cancelled) setLoaded(true)
+      }
+    }
     fetchDashboardData()
-  },[])
+    return () => { cancelled = true }
+  }, [backendUrl, getToken])
 
-  // if dashboardData is availavle then display the div else display the loading component
-  return dashboardData ? (
+  if (!loaded) return <Loading />
+
+  if (!dashboardData) {
+    return <p className="p-8 text-gray-600">Dashboard could not be loaded.</p>
+  }
+
+  return (
     <div className='min-h-screen flex flex-col items-start justify-between gap-8 md:p-8 md:pb-0 p-4 pt-8 pb-0'>
       <div className='space-y-5'>
         {/* this div to store first row with three attributes */} 
@@ -86,7 +113,7 @@ function Dashboard() {
         </div>
       </div>
     </div>
-  ) : <Loading />
+  )
 }
 
 export default Dashboard

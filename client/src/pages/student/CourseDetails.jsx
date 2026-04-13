@@ -4,7 +4,7 @@ import { AppContext } from '../../context/AddContext'
 import Loading from '../../components/student/Loading'
 import { assets } from '../../assets/assets'
 import humanizeDuration from 'humanize-duration'
-import Footer from '../../components/student/footer'
+import Footer from '../../components/student/Footer'
 // importing yt package to play youtube video
 import YouTube from 'react-youtube'
 
@@ -17,22 +17,21 @@ function CourseDetails() {
     //state variable for opening and closing lectures dropdown in course structure section 
     const [openSection,setOpenSection] = useState({})
     //Creating another state variable for the enroll button in right column coursecard
-    const [isEnrolled,setIsEnrolled] = useState(false)
     //Making state variable for preview to work so when user click on preview the lesson preview can be seen in right colum coursecard thumbnail
     const [playerData,setPlayerData] = useState(null)
     //Using id we will find a particular course in all courses
-    const {allCourses,calculateRating,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,currency} = useContext(AppContext)
+    const {allCourses,calculateRating,getCourseRatingsList,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,currency,enrolledCourses} = useContext(AppContext)
 
     //Function to fetch individual course data
     const fetchCourseData = async () => {
-        const findCourse = allCourses.find(course => course._id === id)
+        const findCourse = allCourses.find(course => String(course._id) === String(id))
         //here we use setter function to set the findcourse value in coursedata
         setCourseData(findCourse)
     }
     // to execute fetchCourseData function whenever it mounts we will useEffect hook
     useEffect(() =>{
         fetchCourseData()
-    },[allCourses])
+    },[allCourses, id])
 
     //Creating toggle function to open and close course chapter lectures section 
     const toggleSection = ((index) => {
@@ -44,6 +43,9 @@ function CourseDetails() {
     })
 
 
+
+  const isEnrolled = courseData && enrolledCourses.some((c) => String(c._id) === String(courseData._id))
+  const ratingsList = courseData ? getCourseRatingsList(courseData) : []
 
   return courseData ? (
     <>
@@ -72,7 +74,7 @@ function CourseDetails() {
                 {[...Array(5)].map((_,i) => (<img className='w-3.5 h-3.5' key={i} src={i < Math.floor(calculateRating(courseData)) ? assets.star : assets.star_blank} alt='' />) )}
             </div>
             {/* number of ratings and adding text after numeric rating*/}
-            <p className='text-blue-600'>({courseData?.courseRatings?.length} {courseData?.courseRatings?.length > 1 ? 'ratings':'rating'})</p>
+            <p className='text-blue-600'>({ratingsList.length} {ratingsList.length !== 1 ? 'ratings':'rating'})</p>
 
             {/* total number of enrolled students */}
             <p>{courseData?.enrolledStudents?.length} {courseData?.enrolledStudents?.length > 1 ? 'students':'student'}</p>

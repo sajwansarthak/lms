@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { AppContext } from '../../context/AddContext'
 import {Line} from 'rc-progress'
-import Footer from '../../components/student/footer'
+import Footer from '../../components/student/Footer'
 
 //Using the package rc-progress which we have already downloaded we will display the progress bat but first we have to import it 
 
@@ -10,7 +10,7 @@ function MyEnrollments() {
   const {enrolledCourses,calculateCourseDuration,navigate} = useContext(AppContext)
 
   //Adding progress bar in the table
-  const [progressArray,serProgressArray] = useState([
+  const [progressArray] = useState([
     { lectureCompleted: 2, totalLectures: 4 },
     { lectureCompleted: 1, totalLectures: 5 },
     { lectureCompleted: 3, totalLectures: 6 },

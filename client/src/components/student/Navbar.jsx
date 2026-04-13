@@ -8,7 +8,7 @@ import { AppContext } from '../../context/AddContext'
 const Navbar = () => {
 
     //importing from addcontext.jsx
-    const {navigate,isEducator,setIsEducator} = useContext(AppContext)
+    const {navigate,isEducator} = useContext(AppContext)
     //As we have different color of navbar for home page and course-page
     const isCourseListPage = location.pathname.includes('/course-list')
 

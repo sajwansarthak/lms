@@ -1,33 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { AppContext } from '../../context/AddContext'
 import SearchBar from '../../components/student/SearchBar'
 import { useParams } from 'react-router-dom'
 import CourseCard from '../../components/student/CourseCard'
 import { assets } from '../../assets/assets'
-import Footer from '../../components/student/footer'
+import Footer from '../../components/student/Footer'
 
 function CourseList() {
 
 
     const {navigate, allCourses} = useContext(AppContext)
     const {input} = useParams()
-    //Creating a function to filter the course so when someone searches a particular course in searchbar we'll be able to filter it.
-    const [filterCourse,setFilterCourse] = useState([]) 
 
-    useEffect(()=>{
-        if(allCourses && allCourses.length > 0 ){
-            const tempCourses = allCourses.slice()
-
-            input ?
-            setFilterCourse(
-                tempCourses.filter(
-                    item => item.courseTitle.toLowerCase().includes(input.toLowerCase())
-                )
-            )
-            : setFilterCourse(tempCourses)
-        }
-        //In this dependency array we will add all courses and the input from the user so we can filter
-    },[allCourses,input])
+    const filterCourse = useMemo(() => {
+        if (!allCourses?.length) return []
+        const tempCourses = allCourses.slice()
+        if (!input) return tempCourses
+        return tempCourses.filter((item) =>
+            item.courseTitle.toLowerCase().includes(input.toLowerCase())
+        )
+    }, [allCourses, input])
 
 
   return (

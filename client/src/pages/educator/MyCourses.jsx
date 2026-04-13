@@ -1,21 +1,39 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AddContext'
 import Loading from '../../components/student/Loading'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const MyCourses =() => {
-  // here we have to display all the courses by a particular educator therefore we need all the coursesdata which we will get from our context file
-  const {currency,allCourses} = useContext(AppContext)
-  // creating a state variable to get particular educator data
+  const {currency, backendUrl, getToken} = useContext(AppContext)
   const [courses,setCourses] =useState(null)
-  // function to fetch all the courses and put it in setCourses
-  const fetchAllCourses = async () =>{
-    setCourses(allCourses)
-  }
+
   useEffect(() =>{
-    fetchAllCourses()
-  },[])
-  // we will only return when we have a course to display if no course display Loading component
-  return courses ? (
+    let cancelled = false
+    const load = async () => {
+      try {
+        const token = await getToken()
+        const { data } = await axios.get(`${backendUrl}/api/educator/courses`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (cancelled) return
+        if (data.success) setCourses(data.courses ?? [])
+        else {
+          setCourses([])
+          toast.error(data.message)
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setCourses([])
+          toast.error(e.message)
+        }
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [backendUrl, getToken])
+
+  return courses !== null ? (
     <div className='h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0 '>
       <div className='w-full'>
         {/* Adding title */}
@@ -42,11 +60,11 @@ const MyCourses =() => {
                   </td>
                   {/* Earnings */}
                   <td className='px-4 py-3'>
-                    {currency}{Math.floor(course.enrolledStudents.length * (course.coursePrice - course.discount * course.coursePrice / 100))}
+                    {currency}{Math.floor((course.enrolledStudents?.length ?? 0) * (course.coursePrice - course.discount * course.coursePrice / 100))}
                   </td>
                   {/* Enrolled Students */}
                   <td className='px-4 py-3 '>
-                    {course.enrolledStudents.length}
+                    {course.enrolledStudents?.length ?? 0}
                   </td>
                   {/* Published On */}
                   <td className='px-4 py-3'>
