@@ -105,6 +105,7 @@ export const AppContextProvider = (props) =>{
     }
     //Function to Calculate Course Duration 
     const calculateCourseDuration = (course) => {
+        if (!course?.courseContent) return "0h 0m";
         let time = 0
     
         course.courseContent.forEach((chapter) => {
@@ -117,6 +118,7 @@ export const AppContextProvider = (props) =>{
     }
     //Function to Calculate Total number of lectures in the course
     const calculateNoOfLectures = (course)=>{
+        if (!course?.courseContent) return 0; // ✅ prevent crash
         let totalLectures = 0 
         course.courseContent.forEach(chapter =>{
             if(Array.isArray(chapter.chapterContent)){
@@ -132,6 +134,10 @@ export const AppContextProvider = (props) =>{
         try{
             const token = await getToken()
             const {data} = await axios.get(backendUrl + '/api/user/enrolled-courses',{headers: {Authorization: `Bearer ${token}`}})
+
+            //checking
+            const allUsers = await User.find({}, { _id: 1 })
+            console.log("DB userIds:", JSON.stringify(allUsers))
 
             if(data.success){
                 //It will show new courses to the top

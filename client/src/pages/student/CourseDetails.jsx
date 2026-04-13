@@ -72,10 +72,10 @@ function CourseDetails() {
                 {[...Array(5)].map((_,i) => (<img className='w-3.5 h-3.5' key={i} src={i < Math.floor(calculateRating(courseData)) ? assets.star : assets.star_blank} alt='' />) )}
             </div>
             {/* number of ratings and adding text after numeric rating*/}
-            <p className='text-blue-600'>({courseData.courseRatings.length} {courseData.courseRatings.length > 1 ? 'ratings':'rating'})</p>
+            <p className='text-blue-600'>({courseData?.courseRatings?.length} {courseData?.courseRatings?.length > 1 ? 'ratings':'rating'})</p>
 
             {/* total number of enrolled students */}
-            <p>{courseData.enrolledStudents.length} {courseData.enrolledStudents.length > 1 ? 'students':'student'}</p>
+            <p>{courseData?.enrolledStudents?.length} {courseData?.enrolledStudents?.length > 1 ? 'students':'student'}</p>
         </div>
         {/* Author Name */}
         <p className='text-sm '>Course by <span className='text-blue-600 underline'>Learnify</span></p>
@@ -86,7 +86,7 @@ function CourseDetails() {
             <h2 className='text-xl font-semibold'>Course Structure</h2>
 
             <div className='pt-5'>
-                {courseData.courseContent.map((chapter,index) => (
+                {courseData?.courseContent?.map((chapter,index) => (
                     <div key={index} className='border border-gray-300 bg-white mb-2 rounded'>
                         {/* adding toggel function  */}
                         <div className='flex items-center justify-between px-4 py-3 cursor-pointer select-none' onClick={() => toggleSection(index)}>
@@ -179,7 +179,7 @@ function CourseDetails() {
                 {/* Adding course duration */}
                 <div className='flex items-center gap-1'>
                     <img src={assets.time_clock_icon} alt="time clock icon" />
-                    <p>{calculateCourseDuration(courseData)}</p>
+                    <p>{ courseData?calculateCourseDuration(courseData):"Loading..."}</p>
                 </div>
                 {/* Adding vertical line */}
                 <div className='h-4 w-px bg-gray-500/40'></div>
@@ -187,7 +187,7 @@ function CourseDetails() {
                 {/* Adding total number of lectures */}
                 <div className='flex items-center gap-1'>
                     <img src={assets.lesson_icon} alt="lesson ison" />
-                    <p>{calculateNoOfLectures(courseData)} Lessons</p>
+                    <p>{courseData ? calculateNoOfLectures(courseData):0} Lessons</p>
                 </div>
 
             </div>
