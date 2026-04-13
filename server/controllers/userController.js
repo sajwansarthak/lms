@@ -8,8 +8,9 @@ import { CourseProgress } from "../models/hostProgress.js"
 export const getUserData = async (req,res) =>{
     try{
         //verifying the user and finding user in db
-        const authdata = req.auth()
-        const userId = authdata.userId
+        // const authdata = req.auth()
+        // const userId = authdata.userId
+        const userId = req.auth.userId
         const user = await User.findById(userId)
 
         //Response if we don't have the user
@@ -25,9 +26,19 @@ export const getUserData = async (req,res) =>{
 //Users Enrolled Courses with Lecture Links
 export const userEnrolledCourses = async (req,res) =>{
     try{
-        const authdata = req.auth()
-        const userId = authdata.userId
+        // const authdata = req.auth()
+        // const userId = authdata.userId
+        const userId = req.auth.userId
+
+        // 👇 Add this log to verify the userId
+        console.log("userId from token:", userId)
+
         const userData = await User.findById(userId).populate('enrolledCourses')
+
+        // 👇 Add null check
+        if (!userData) {
+            return res.json({ success: false, message: 'User not found' })
+        }
 
         res.json({success:true, enrolledCourses: userData.enrolledCourses})
     }catch(error){
@@ -40,8 +51,7 @@ export const purchaseCourse = async (req,res) =>{
     try{
         const {courseId} = req.body
         const {origin} = req.headers 
-        const authdata = req.auth()
-        const userId = authdata.userId
+        const userId = req.auth.userId
         //Now using this userid we have to find userdata
         const userData = await User.findById(userId)
         //Getting CourseData
@@ -100,8 +110,7 @@ export const purchaseCourse = async (req,res) =>{
 export const updateUserCourseProgress = async (req,res) =>{
     try{
         //Getting verified userId 
-        const authdata = req.auth()
-        const userId = authdata.userId
+        const userId = req.auth.userId
         //We will get the courseId and lectureId from the body 
         const {courseId,lectureId} =req.body
 
@@ -133,8 +142,7 @@ export const updateUserCourseProgress = async (req,res) =>{
 
 export const getUserCourseProgress = async (req,res) =>{
     try{
-        const authdata = req.auth()
-        const userId = authdata.userId
+        const userId = req.auth.userId
         const {courseId,lectureId} = req.body
         //finding progress data using courseProgress model 
         const porgressData = await CourseProgress.findOne({userId,courseId})
@@ -146,8 +154,7 @@ export const getUserCourseProgress = async (req,res) =>{
 }
 //Add User Ratings to Course
 export const addUserRating = async (req,res)=>{
-    const authdata = req.auth()
-        const userId = authdata.userId
+        const userId = req.auth.userId
         const {courseId,rating} = req.body
 
         // checking if we have userId,courseId,rating

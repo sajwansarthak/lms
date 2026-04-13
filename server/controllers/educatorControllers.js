@@ -12,9 +12,9 @@ export const updateRoleToEducator = async (req,res) =>{
         // finding errors
         // console.log("AUTH OBJECT:", req.auth)
         // console.log("USER ID:", req.auth?.userId)
-        const authData = req.auth();
+        //const authData = req.auth();
         //we will get the userid from the middleware we have created in server.js
-        const userId = authData.userId
+        const userId = req.auth.userId
 
         // here we will use the clerkClient so first we will import it .
         await clerkClient.users.updateUserMetadata(userId,{
@@ -36,8 +36,7 @@ export const addCourse = async(req,res) =>{
         const {courseData} = req.body
         const imagefile = req.file
         //we will require educator id 
-        const authData = req.auth()
-        const educatorId = authData.userId
+        const educatorId = req.auth.userId
 
         //checking if we have imagefile or not
         if(!imagefile){
@@ -66,8 +65,7 @@ export const addCourse = async(req,res) =>{
 //Get Educator Courses
 export const getEducatorCourses = async(req,res) =>{
     try{
-        const authdata = req.auth()
-        const educator = authdata.userId
+        const educator = req.auth.userId
 
 
         const courses = await Course.find({educator})
@@ -83,8 +81,7 @@ export const getEducatorCourses = async(req,res) =>{
 
 export const getEducatorDashboardData = async (req,res) =>{
     try{
-        const authdata = req.auth();
-        const educator = authdata.userId;
+        const educator = req.auth.userId
 
         const courses = await Course.find({educator});
         //Finding Total number of courses
@@ -125,10 +122,9 @@ export const getEducatorDashboardData = async (req,res) =>{
 export const getEnrolledStudentsData = async (req,res) =>{
     try{
         //fetch all courses by educator
-        const authdata = req.auth()
-        const educator = authdata.userId
+        const educator = req.auth.userId
         const courses = await Course.find({educator});
-        const courseIds = course.map(course => course._id);
+        const courseIds = Course.map(course => course._id);
 
         //Now we find purchases with user and course data
         const purchases = await Purchase.find({

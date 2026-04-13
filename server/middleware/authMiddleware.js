@@ -5,8 +5,7 @@ import {clerkClient} from '@clerk/express'
 //Middleware protect educator Routes
 export const protectEducator = async (req,res,next) =>{
     try{
-        const authdata = req.auth();
-        const userId = authdata.userId
+        const userId = req.auth.userId
         //now using this userId we will check wheather the user in educator or not
         const response = await clerkClient.users.getUser(userId)
 
