@@ -6,7 +6,6 @@ import humanizeDuration from 'humanize-duration'
 import {useAuth,useUser} from '@clerk/clerk-react'
 import axios from 'axios'
 import {toast} from 'react-toastify'
-import { toNamespacedPath } from "path";
 
 //A global storage box that any component can access.
 export const AppContext = createContext()
@@ -95,7 +94,7 @@ export const AppContextProvider = (props) =>{
         course.courseRatings.forEach(rating =>{
             totalRating += rating.rating
         })
-        return totalRating / course.courseRatings.length
+        return Math.floor(totalRating / course.courseRatings.length)
     }
     //Fucntion to Calculate course chapter time
     const calculateChapterTime = (chapter) =>{
