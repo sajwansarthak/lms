@@ -14,7 +14,7 @@ export const AppContext = createContext()
 export const AppContextProvider = (props) =>{
 
     //Creating State variable to get userdata from the api done after connect FE to BE
-    const [useData,setUserData] = useState([])
+    const [userData,setUserData] = useState([])
     //Getting backend URL for axios connecting backend to frontend
     const backendUrl = import.meta.env.VITE_BACKEND_URL
 
@@ -68,13 +68,14 @@ export const AppContextProvider = (props) =>{
         }
         try{
             const token = await getToken()
-
+            console.log("Token:", token)
             const {data} = await axios.get(backendUrl + '/api/user/data',{headers:{
                 Authorization: `Bearer ${token}`
             }})
 
             if(data.success){
                 setUserData(data.user)
+                await fetchUserEnrolledCourses()
             }else{
                 toast.error(data.message)
             }
@@ -161,14 +162,14 @@ export const AppContextProvider = (props) =>{
         if(user){
             //logToken()
             fetchUserData()
-            fetchUserEnrolledCourses()
+            //fetchUserEnrolledCourses()
         }
     },[user])
 
     
     //This is the data you want to share globally.
     const value = {
-        currency,allCourses,navigate,calculateRating,isEducator,setIsEducator,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,enrolledCourses,fetchUserEnrolledCourses,backendUrl,useData,setUserData,getToken,fetchAllCourses
+        currency,allCourses,navigate,calculateRating,isEducator,setIsEducator,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,enrolledCourses,fetchUserEnrolledCourses,backendUrl,userData,setUserData,getToken,fetchAllCourses
     }
     
     //	All components wrapped inside this provider

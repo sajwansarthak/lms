@@ -24,7 +24,7 @@ function CourseCard({course}) {
         {/* course Title */}
         <h3 className='text-base font-semibold'>{course.courseTitle}</h3>
         {/* educator name */}
-        <p className='text-gray-500'>{course.educator.name}</p>
+        <p className='text-gray-500'>{course?.educator?.name || "Unknown Educator"}</p>
         {/* now we will create course rating - avg rating, stars out of 5, total rating */}
         <div className='flex item-center space-x-2'>
             {/* rating  using calculateRating function which we have created in AddContext so we can get clear rating of each course*/}
