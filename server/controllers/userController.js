@@ -4,6 +4,7 @@ import { Purchase } from "../models/purchase.js"
 import Stripe from 'stripe'
 import { CourseProgress } from "../models/hostProgress.js"
 import { clerkClient } from '@clerk/express'
+import { getClerkUserId } from '../utils/clerkAuth.js'
 
 /**
  * App users are keyed by Clerk user id (`user_...`). They are normally created by the
@@ -11,6 +12,7 @@ import { clerkClient } from '@clerk/express'
  * sync from Clerk on demand so a valid Clerk session still maps to a DB row.
  */
 async function findOrCreateAppUser(userId) {
+    if (!userId) return null
     let user = await User.findById(userId)
     if (user) return user
 
@@ -43,9 +45,7 @@ async function findOrCreateAppUser(userId) {
 export const getUserData = async (req,res) =>{
     try{
         //verifying the user and finding user in db
-        // const authdata = req.auth()
-        // const userId = authdata.userId
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
         const user = await findOrCreateAppUser(userId)
 
         //Response if we don't have the user
@@ -61,8 +61,9 @@ export const getUserData = async (req,res) =>{
 //Users Enrolled Courses with Lecture Links
 export const userEnrolledCourses = async (req,res) =>{
     try{
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
 
+        await findOrCreateAppUser(userId)
         const userData = await User.findById(userId).populate('enrolledCourses')
 
         if (!userData) {
@@ -81,7 +82,7 @@ export const purchaseCourse = async (req,res) =>{
     try{
         const {courseId} = req.body
         const {origin} = req.headers 
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
         //Now using this userid we have to find userdata
         await findOrCreateAppUser(userId)
         const userData = await User.findById(userId).populate('enrolledCourses')
@@ -141,7 +142,7 @@ export const purchaseCourse = async (req,res) =>{
 export const updateUserCourseProgress = async (req,res) =>{
     try{
         //Getting verified userId 
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
         //We will get the courseId and lectureId from the body 
         const {courseId,lectureId} =req.body
 
@@ -173,7 +174,7 @@ export const updateUserCourseProgress = async (req,res) =>{
 
 export const getUserCourseProgress = async (req,res) =>{
     try{
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
         const {courseId,lectureId} = req.body
         //finding progress data using courseProgress model 
         const progressData = await CourseProgress.findOne({userId,courseId})
@@ -185,7 +186,7 @@ export const getUserCourseProgress = async (req,res) =>{
 }
 //Add User Ratings to Course
 export const addUserRating = async (req,res)=>{
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
         const {courseId,rating} = req.body
 
         // checking if we have userId,courseId,rating

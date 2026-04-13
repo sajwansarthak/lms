@@ -1,4 +1,5 @@
 import {clerkClient} from '@clerk/express'
+import { getClerkUserId } from '../utils/clerkAuth.js'
 import Course from '../models/course.js';
 import { v2 as cloudinary } from 'cloudinary'
 import { Purchase } from '../models/purchase.js';
@@ -14,7 +15,7 @@ export const updateRoleToEducator = async (req,res) =>{
         // console.log("USER ID:", req.auth?.userId)
         //const authData = req.auth();
         //we will get the userid from the middleware we have created in server.js
-        const userId = req.auth.userId
+        const userId = getClerkUserId(req)
 
         // here we will use the clerkClient so first we will import it .
         await clerkClient.users.updateUserMetadata(userId,{
@@ -36,7 +37,7 @@ export const addCourse = async(req,res) =>{
         const {courseData} = req.body
         const imagefile = req.file
         //we will require educator id 
-        const educatorId = req.auth.userId
+        const educatorId = getClerkUserId(req)
 
         //checking if we have imagefile or not
         if(!imagefile){
@@ -65,7 +66,7 @@ export const addCourse = async(req,res) =>{
 //Get Educator Courses
 export const getEducatorCourses = async(req,res) =>{
     try{
-        const educator = req.auth.userId
+        const educator = getClerkUserId(req)
 
 
         const courses = await Course.find({educator})
@@ -81,7 +82,7 @@ export const getEducatorCourses = async(req,res) =>{
 
 export const getEducatorDashboardData = async (req,res) =>{
     try{
-        const educator = req.auth.userId
+        const educator = getClerkUserId(req)
 
         const courses = await Course.find({educator});
         //Finding Total number of courses
@@ -122,7 +123,7 @@ export const getEducatorDashboardData = async (req,res) =>{
 export const getEnrolledStudentsData = async (req,res) =>{
     try{
         //fetch all courses by educator
-        const educator = req.auth.userId
+        const educator = getClerkUserId(req)
         const courses = await Course.find({educator});
         const courseIds = courses.map(course => course._id);
 
