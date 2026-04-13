@@ -3,6 +3,41 @@ import Course from "../models/course.js"
 import { Purchase } from "../models/purchase.js"
 import Stripe from 'stripe'
 import { CourseProgress } from "../models/hostProgress.js"
+import { clerkClient } from '@clerk/express'
+
+/**
+ * App users are keyed by Clerk user id (`user_...`). They are normally created by the
+ * Clerk `user.created` webhook; if that never ran (local dev, misconfigured webhook),
+ * sync from Clerk on demand so a valid Clerk session still maps to a DB row.
+ */
+async function findOrCreateAppUser(userId) {
+    let user = await User.findById(userId)
+    if (user) return user
+
+    const cu = await clerkClient.users.getUser(userId)
+    const email = cu.emailAddresses?.[0]?.emailAddress ?? ''
+    const name =
+        [cu.firstName, cu.lastName].filter(Boolean).join(' ').trim() ||
+        email ||
+        'User'
+    const imageUrl = cu.imageUrl ?? ''
+
+    try {
+        user = await User.create({
+            _id: cu.id,
+            email,
+            name,
+            imageUrl,
+        })
+    } catch (err) {
+        if (err.code === 11000) {
+            user = await User.findById(userId)
+        } else {
+            throw err
+        }
+    }
+    return user
+}
 
 //Here we will create a controller function to get userData
 export const getUserData = async (req,res) =>{
@@ -11,7 +46,7 @@ export const getUserData = async (req,res) =>{
         // const authdata = req.auth()
         // const userId = authdata.userId
         const userId = req.auth.userId
-        const user = await User.findById(userId)
+        const user = await findOrCreateAppUser(userId)
 
         //Response if we don't have the user
         if(!user){
@@ -48,7 +83,7 @@ export const purchaseCourse = async (req,res) =>{
         const {origin} = req.headers 
         const userId = req.auth.userId
         //Now using this userid we have to find userdata
-        //const userData = await User.findById(userId)
+        await findOrCreateAppUser(userId)
         const userData = await User.findById(userId).populate('enrolledCourses')
         //Getting CourseData
         const courseData = await Course.findById(courseId)
@@ -165,6 +200,7 @@ export const addUserRating = async (req,res)=>{
             return res.json({success:false, message: 'Course Not Found'})
         }
         //Finding User 
+        await findOrCreateAppUser(userId)
         const user = await User.findById(userId)
 
         const isEnrolled = (user?.enrolledCourses ?? []).some(
