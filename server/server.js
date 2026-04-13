@@ -41,9 +41,14 @@ app.use('/api/course',express.json(),courseRouter)
 app.use('/api/user',express.json(),userRouter)
 //Stripe 
 app.post('/stripe',express.raw({type: 'application/json'}),stripeWebhooks)
-//Port 
+// Port (Vercel sets PORT; local dev uses 3000 by default)
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () =>{
-    console.log(`Server is running on port ${PORT}`)
-})
+// Serverless (Vercel) expects the Express app as the default export — do not bind a port there.
+if (!process.env.VERCEL) {
+    app.listen(PORT, () =>{
+        console.log(`Server is running on port ${PORT}`)
+    })
+}
+
+export default app

@@ -99,7 +99,7 @@ export const stripeWebhooks = async (request, response) => {
       const courseData = await Course.findById(purchaseData.courseId.toString())
 
       //Now we have to add the userData in courseData and courseData in userData
-      courseData.enrolledStudents.push(userData) //now saving it in mongodb
+      courseData.enrolledStudents.push(userData._id)
       await courseData.save()
       userData.enrolledCourses.push(courseData._id)
       await userData.save()

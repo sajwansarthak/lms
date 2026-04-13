@@ -124,12 +124,12 @@ export const getEnrolledStudentsData = async (req,res) =>{
         //fetch all courses by educator
         const educator = req.auth.userId
         const courses = await Course.find({educator});
-        const courseIds = Course.map(course => course._id);
+        const courseIds = courses.map(course => course._id);
 
         //Now we find purchases with user and course data
         const purchases = await Purchase.find({
             courseId:{$in: courseIds},
-            status: 'completed'
+            status: 'Completed'
         }).populate('userId','name imageUrl').populate('courseId','courseTitle')
 
         //Finding Student data

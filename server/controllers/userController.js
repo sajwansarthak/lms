@@ -26,23 +26,16 @@ export const getUserData = async (req,res) =>{
 //Users Enrolled Courses with Lecture Links
 export const userEnrolledCourses = async (req,res) =>{
     try{
-        // const authdata = req.auth()
-        // const userId = authdata.userId
-        console.log("req.auth:", req.auth)        // 👈 add this
-        console.log("req.headers:", req.headers)  // 👈 and this
         const userId = req.auth.userId
-
-        // 👇 Add this log to verify the userId
-        console.log("userId from token:", userId)
 
         const userData = await User.findById(userId).populate('enrolledCourses')
 
-        // 👇 Add null check
         if (!userData) {
             return res.json({ success: false, message: 'User not found' })
         }
 
-        res.json({success:true, enrolledCourses: userData.enrolledCourses})
+        const enrolledCourses = userData.enrolledCourses ?? []
+        res.json({success:true, enrolledCourses})
     }catch(error){
         res.json({success:false, message: error.message})
     }
@@ -56,7 +49,7 @@ export const purchaseCourse = async (req,res) =>{
         const userId = req.auth.userId
         //Now using this userid we have to find userdata
         //const userData = await User.findById(userId)
-        const userData = await User.findOne({ userId }).populate('enrolledCourses')
+        const userData = await User.findById(userId).populate('enrolledCourses')
         //Getting CourseData
         const courseData = await Course.findById(courseId)
 
@@ -174,7 +167,10 @@ export const addUserRating = async (req,res)=>{
         //Finding User 
         const user = await User.findById(userId)
 
-        if(!user || !user.enrolledCourses.includes(courseId)){
+        const isEnrolled = (user?.enrolledCourses ?? []).some(
+            (id) => id?.toString() === String(courseId)
+        )
+        if(!user || !isEnrolled){
             return res.json({success:false , message: 'User has not purchased this course.'})
         }
         //Now we will check if we have already rated the course
