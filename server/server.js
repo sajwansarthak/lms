@@ -1,6 +1,6 @@
+import 'dotenv/config'
 import express  from "express";
 import cors from "cors";
-import 'dotenv/config'
 import connectdb from "./configs/mongodb.js";
 import { clerkWebhooks, stripeWebhooks } from "./controllers/webhooks.js";
 import educatorRouter from "./routes/educatorRoutes.js";
@@ -14,7 +14,6 @@ import userRouter from "./routes/userRoutes.js";
 const app = express()
 
 //Connect to database
-console.log("Mongo URL:", process.env.MONGODB_URL);
 await connectdb()
 //Connect to Cloudinary
 await connectCloudinary()

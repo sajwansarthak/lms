@@ -192,5 +192,3 @@ export const addUserRating = async (req,res)=>{
         return res.json({success:false, message: error.message})
     }
 }
-const allUsers = await User.find({}, { clerkId: 1, _id: 1 })
-console.log("Users:", allUsers)
