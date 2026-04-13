@@ -53,7 +53,8 @@ export const purchaseCourse = async (req,res) =>{
         const {origin} = req.headers 
         const userId = req.auth.userId
         //Now using this userid we have to find userdata
-        const userData = await User.findById(userId)
+        //const userData = await User.findById(userId)
+        const userData = await User.findOne({ userId }).populate('enrolledCourses')
         //Getting CourseData
         const courseData = await Course.findById(courseId)
 
@@ -145,7 +146,7 @@ export const getUserCourseProgress = async (req,res) =>{
         const userId = req.auth.userId
         const {courseId,lectureId} = req.body
         //finding progress data using courseProgress model 
-        const porgressData = await CourseProgress.findOne({userId,courseId})
+        const progressData = await CourseProgress.findOne({userId,courseId})
         res.json({success: true,progressData})
 
     }catch(error){
@@ -191,3 +192,5 @@ export const addUserRating = async (req,res)=>{
         return res.json({success:false, message: error.message})
     }
 }
+const allUsers = await User.find({}, { clerkId: 1, _id: 1 })
+console.log("Users:", allUsers)

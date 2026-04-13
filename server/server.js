@@ -14,6 +14,7 @@ import userRouter from "./routes/userRoutes.js";
 const app = express()
 
 //Connect to database
+console.log("Mongo URL:", process.env.MONGODB_URL);
 await connectdb()
 //Connect to Cloudinary
 await connectCloudinary()

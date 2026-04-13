@@ -10,5 +10,5 @@ const connectdb = async () =>{
     await mongoose.connect(`${process.env.MONGODB_URL}/lms`)
 }
 // exporting it so that it can be used anywhere in the project
-// Now we need to call this function in our server file so that whenever we start the server db connects automatically 
+// Now we need to call this function in our server file so that whenever we start the server db connects automaticallexport default connectdb
 export default connectdb
