@@ -6,6 +6,7 @@ import humanizeDuration from 'humanize-duration'
 import {useAuth,useUser} from '@clerk/clerk-react'
 import axios from 'axios'
 import {toast} from 'react-toastify'
+import { toNamespacedPath } from "path";
 
 //A global storage box that any component can access.
 export const AppContext = createContext()
@@ -13,7 +14,8 @@ export const AppContext = createContext()
 //It wraps your whole app and provides data to all child components.
 export const AppContextProvider = (props) =>{
 
-
+    //Creating State variable to get userdata from the api done after connect FE to BE
+    const [useData,setUserData] = useState([])
     //Getting backend URL for axios connecting backend to frontend
     const backendUrl = import.meta.env.VITE_BACKEND_URL
 
@@ -24,7 +26,7 @@ export const AppContextProvider = (props) =>{
     const navigate = useNavigate()
 
     //Creating another state variable for the educator information
-    const [isEducator,setIsEducator] = useState(true)
+    const [isEducator,setIsEducator] = useState(false)
     //Cerating anothe state variable for the myEnrollement information 
     const [enrolledCourses,setEnrolledCourses] = useState([]) //now create a fun to get the user enrolled courses 
 
@@ -55,6 +57,32 @@ export const AppContextProvider = (props) =>{
     //Getting auth token for authentication and clerk middlerware for the backend
     const {getToken} = useAuth()
     const {user} = useUser() //now we will create a useEffect for this 
+
+
+
+    //Fucntion To Fetch UserData
+    const fetchUserData = async () =>{
+
+
+        if(user.publicMetadata.role === 'educator'){
+            setIsEducator(true)
+        }
+        try{
+            const token = await getToken()
+
+            const {data} = await axios.get(backendUrl + '/api/user/data',{headers:{
+                Authorization: `Bearer ${token}`
+            }})
+
+            if(data.success){
+                setUserData(data.user)
+            }else{
+                toast.error(data.message)
+            }
+        }catch(error){
+            toast.error(error.message)
+        }
+    }
 
     //Function to calculate average rating of course
     const calculateRating = (course) =>{
@@ -99,31 +127,49 @@ export const AppContextProvider = (props) =>{
     }
     //Function to get the user Enrolled Courses
     const fetchUserEnrolledCourses = async () =>{
-        setEnrolledCourses(dummyCourses)
+        //setEnrolledCourses(dummyCourses)
+        //Now we will fetch userEnrolledCourses from the api
+        try{
+            const token = await getToken()
+            const {data} = await axios.get(backendUrl + '/api/user/enrolled-courses',{headers: {Authorization: `Bearer ${token}`}})
+
+            if(data.success){
+                //It will show new courses to the top
+                setEnrolledCourses(data.enrolledCourses.reverse())
+            }else{
+                toast.error(data.message)
+            }
+        }catch(error){
+            toast.error(error.message)
+        }
     }
 
      //using the fetchAllCourses funtion we have created
      useEffect(() =>{
         fetchAllCourses()
-        fetchUserEnrolledCourses()
+        //We will remove this function from here and add it with fetchUserData because it will run when we get userData
+        //fetchUserEnrolledCourses()
     },[])
 
     //function to diaplay token
-    const logToken = async () =>{
-        // this will display the token in frontend console
-        console.log(await getToken())
-    }
+    //we do not require this token now when we fetchUserData while connecting backednd to frontend
+    // const logToken = async () =>{
+    //     // this will display the token in frontend console
+    //     console.log(await getToken())
+    // }
     //useEffect to get auth token
     useEffect(() =>{
         if(user){
-            logToken()
+            //logToken()
+            fetchUserData()
+            fetchUserEnrolledCourses()
         }
     },[user])
 
     
     //This is the data you want to share globally.
     const value = {
-        currency,allCourses,navigate,calculateRating,isEducator,setIsEducator,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,enrolledCourses,fetchUserEnrolledCourses
+        currency,allCourses,navigate,calculateRating,isEducator,setIsEducator,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,enrolledCourses,fetchUserEnrolledCourses,backendUrl,useData,setUserData,getToken,fetchAllCourses
     }
     
     //	All components wrapped inside this provider
