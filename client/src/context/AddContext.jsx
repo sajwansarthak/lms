@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import humanizeDuration from 'humanize-duration'
 import {useAuth,useUser} from '@clerk/clerk-react'
 import axios from 'axios'
-import toast from 'react-toastify'
+import {toast} from 'react-toastify'
 
 //A global storage box that any component can access.
 export const AppContext = createContext()
@@ -49,7 +49,7 @@ export const AppContextProvider = (props) =>{
                 toast.error(data.message)
             }
         }catch(error){
-            toast.error(data.message)
+            toast.error(error.message)
         }
     }
     //Getting auth token for authentication and clerk middlerware for the backend
@@ -59,7 +59,7 @@ export const AppContextProvider = (props) =>{
     //Function to calculate average rating of course
     const calculateRating = (course) =>{
         //if the course has no rating 
-        if(course.courseRatings.length === 0 ){
+        if(!course.courseRatings || course.courseRatings.length === 0 ){
             return 0;
         }
         //calculating the rating 
