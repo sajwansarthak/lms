@@ -28,6 +28,8 @@ export const userEnrolledCourses = async (req,res) =>{
     try{
         // const authdata = req.auth()
         // const userId = authdata.userId
+        console.log("req.auth:", req.auth)        // 👈 add this
+        console.log("req.headers:", req.headers)  // 👈 and this
         const userId = req.auth.userId
 
         // 👇 Add this log to verify the userId
