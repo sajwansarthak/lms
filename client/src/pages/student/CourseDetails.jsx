@@ -7,8 +7,13 @@ import humanizeDuration from 'humanize-duration'
 import Footer from '../../components/student/Footer'
 // importing yt package to play youtube video
 import YouTube from 'react-youtube'
+import axios from 'axios'
+import {toast} from 'react-toastify'
 
 function CourseDetails() {
+
+    //State variavle to store if user is already enrolled or not 
+    const [isAlreadyEnrolled,setIsAlreadyEnrolled] = useState(false)
 
     // To get/store the course id
     const {id} = useParams()
@@ -20,18 +25,57 @@ function CourseDetails() {
     //Making state variable for preview to work so when user click on preview the lesson preview can be seen in right colum coursecard thumbnail
     const [playerData,setPlayerData] = useState(null)
     //Using id we will find a particular course in all courses
-    const {allCourses,calculateRating,getCourseRatingsList,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,currency,enrolledCourses} = useContext(AppContext)
+    const {allCourses,calculateRating,getCourseRatingsList,calculateNoOfLectures,calculateCourseDuration,calculateChapterTime,currency,enrolledCourses,backendUrl,userData,getToken} = useContext(AppContext)
 
     //Function to fetch individual course data
     const fetchCourseData = async () => {
-        const findCourse = allCourses.find(course => String(course._id) === String(id))
-        //here we use setter function to set the findcourse value in coursedata
-        setCourseData(findCourse)
+        // const findCourse = allCourses.find(course => String(course._id) === String(id))
+        // //here we use setter function to set the findcourse value in coursedata
+        // setCourseData(findCourse)
+        try{
+            //Here we will get individual course data
+            const {data} = await axios.get(backendUrl + '/api/course/' + id)
+
+            if(data.success){
+                setCourseData(data.courseData)
+            }else{
+                toast.error(data.message)
+            }
+        }catch(error){
+            toast.error(error.message)
+        }
+    }
+    const enrollCourse = async () =>{
+        try{
+            if(!userData){
+                return toast.warn('Login to Enroll')
+            }
+            if(isAlreadyEnrolled){
+                //In useEffect below we have checked id already enrolled
+                return toast.warn('Already Enrolled')
+            }
+            const token = await getToken()
+
+            const {data} = await axios.post(backendUrl + '/api/user/purchase',{courseId: courseData._id},                               {headers:{Authorization: `Bearer ${token}`}})
+            if(data.success){
+                const {session_url} = data
+                window.location.replace(session_url)
+            }else{
+                toast.error(data.message)
+            }
+        }catch(error){
+            toast.error(error.message)
+        }
     }
     // to execute fetchCourseData function whenever it mounts we will useEffect hook
     useEffect(() =>{
         fetchCourseData()
     },[allCourses, id])
+    useEffect(() =>{
+        if(userData && courseData){
+            setIsAlreadyEnrolled(userData.enrolledCourses.includes(courseData._id))
+        }
+    },[userData,courseData])
 
     //Creating toggle function to open and close course chapter lectures section 
     const toggleSection = ((index) => {
@@ -80,7 +124,7 @@ function CourseDetails() {
             <p>{courseData?.enrolledStudents?.length} {courseData?.enrolledStudents?.length > 1 ? 'students':'student'}</p>
         </div>
         {/* Author Name */}
-        <p className='text-sm '>Course by <span className='text-blue-600 underline'>Learnify</span></p>
+        <p className='text-sm '>Course by <span className='text-blue-600 underline'>{courseData?.educator?.name}</span></p>
 
         {/* course structure duration and content of the course */}
         <div className='pt-8 text-gray-800'>
@@ -193,7 +237,7 @@ function CourseDetails() {
                 </div>
 
             </div>
-            <button className='md:mt-6 mt-4 w-full py-3 rounded bg-blue-600 text-white font-medium'>{isEnrolled ? 'Already Enrolled':'Enroll Now'}</button>
+            <button onClick={enrollCourse} className='md:mt-6 mt-4 w-full py-3 rounded bg-blue-600 text-white font-medium'>{isEnrolled ? 'Already Enrolled':'Enroll Now'}</button>
             {/* Adding little bit more course details */}
             <div className='pt-6'>
                 <p className='md:text-xl text-lg font-medium text-gray-800'>What's in the course ?</p>
