@@ -55,13 +55,14 @@ export const AppContextProvider = (props) =>{
     //Getting auth token for authentication and clerk middlerware for the backend
     const {getToken} = useAuth()
     const {user} = useUser() //now we will create a useEffect for this 
+    
 
 
 
     //Fucntion To Fetch UserData
     const fetchUserData = async () =>{
 
-
+        
         if(user?.publicMetadata?.role === 'educator'){
             setIsEducator(true)
         } else {
@@ -69,6 +70,7 @@ export const AppContextProvider = (props) =>{
         }
         try{
             const token = await getToken()
+            console.log(token)
             const {data} = await axios.get(backendUrl + '/api/user/data',{headers:{
                 Authorization: `Bearer ${token}`
             }})

@@ -4,16 +4,38 @@ import { Link } from 'react-router-dom'
 // importing clerk for student login 
 import { useClerk, UserButton, useUser  } from '@clerk/clerk-react'
 import { AppContext } from '../../context/AddContext'
+import axios from 'axios'
+import {toast} from 'react-toastify'
 
 const Navbar = () => {
 
     //importing from addcontext.jsx
-    const {navigate,isEducator} = useContext(AppContext)
+    const {navigate,isEducator,backendUrl,setIsEducator,getToken} = useContext(AppContext)
     //As we have different color of navbar for home page and course-page
     const isCourseListPage = location.pathname.includes('/course-list')
 
     const {openSignIn} = useClerk()
     const {user} = useUser()
+
+    //Function to become educator
+    const becomeEducator = async() =>{
+      try{
+        if(isEducator){
+          navigate('/educator')
+          return
+        }
+        const token = await getToken()
+        const {data} = await axios.get(backendUrl + '/api/educator/update-role',{headers:{Authorization: `Bearer ${token}`}})
+        if(data.success){
+          setIsEducator(true)
+          toast.success(data.message)
+        }else{
+          toast.error(data.message)
+        }
+      }catch(error){
+        toast.error(error.message)
+      }
+    }
 
   return (
     // px-4 sm:px-10 md:px-14 lg:px-36 different padding for different screen size
@@ -32,7 +54,7 @@ const Navbar = () => {
             { user && 
             <>
                 
-                <button className='cursor-pointer' onClick={() =>{navigate('/educator')}}>{isEducator ? 'Educator Dashboard':'Become Educator'}</button> | <Link to='my-enrollments'>My Enrollments</Link>
+                <button className='cursor-pointer' onClick={becomeEducator}>{isEducator ? 'Educator Dashboard':'Become Educator'}</button> | <Link to='my-enrollments'>My Enrollments</Link>
             </>
             }
         </div>
@@ -49,7 +71,7 @@ const Navbar = () => {
             { user &&
             <>
                 
-                <button className='cursor-pointer' onClick={() => {navigate('/educator')}}>{isEducator ? 'Educator Dashboard':'Become Educator'}</button> | <Link to='my-enrollments'>My Enrollments</Link>
+                <button className='cursor-pointer' onClick={becomeEducator}>{isEducator ? 'Educator Dashboard':'Become Educator'}</button> | <Link to='my-enrollments'>My Enrollments</Link>
             </>
             }
 
