@@ -8,33 +8,30 @@ import { toast } from 'react-toastify'
 
 const StuEnrolled = () => {
 
-  const { backendUrl, getToken } = useContext(AppContext)
+  const { backendUrl, getToken,isEducator } = useContext(AppContext)
   const [enrolledStudents,setEnrolledStudents] = useState(null)
 
-  useEffect(() =>{
-    let cancelled = false
-    const fetchEnrolledStudents = async () =>{
-      try {
-        const token = await getToken()
-        const { data } = await axios.get(`${backendUrl}/api/educator/enrolled-students`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        if (cancelled) return
-        if (data.success) setEnrolledStudents(data.enrolledStudents ?? [])
-        else {
-          setEnrolledStudents([])
-          toast.error(data.message)
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setEnrolledStudents([])
-          toast.error(e.message)
-        }
+  const fetchEnrolledStudents = async() =>{
+    try{
+      const token = await getToken()
+      const {data} = await axios.get(backendUrl + '/api/educator/enrolled-students',{headers:{Authorization: `Bearer ${token}`}})
+
+      if(data.success){
+        //display new students on top
+        setEnrolledStudents(data.enrolledStudents.reverse())
+      }else{
+        toast.error(data.message)
       }
+    }catch(error){
+      toast.error(error.message)
     }
-    fetchEnrolledStudents()
-    return () => { cancelled = true }
-  }, [backendUrl, getToken])
+  }
+  useEffect(() =>{
+    if(isEducator){
+      fetchEnrolledStudents()
+    }
+  },[isEducator])
+
 
   return enrolledStudents ?(
     <div className='min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>

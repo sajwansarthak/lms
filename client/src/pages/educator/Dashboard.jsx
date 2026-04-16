@@ -9,38 +9,33 @@ function Dashboard() {
 
 
   // importing already declared elements from addcontext.jsx
-  const { currency, backendUrl, getToken } =useContext(AppContext)
+  const { currency, backendUrl, getToken,isEducator } =useContext(AppContext)
 
   // State variable to store dashboard data
   const [dashboardData, setDashboardData] = useState(null)
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() =>{
-    let cancelled = false
-    const fetchDashboardData = async () =>{
-      try {
-        const token = await getToken()
-        const { data } = await axios.get(`${backendUrl}/api/educator/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        if (cancelled) return
-        if (data.success) setDashboardData(data.dashboardData)
-        else {
-          setDashboardData(null)
-          toast.error(data.message)
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setDashboardData(null)
-          toast.error(e.message)
-        }
-      } finally {
-        if (!cancelled) setLoaded(true)
+  //connecting with backend
+  const fetchDashboardData = async () =>{
+    try{
+      const token = await getToken()
+      const {data} = await axios.get(backendUrl + "/api/educator/dashboard",{headers:{Authorization: `Bearer ${token}`}})
+      if(data.success){
+        setDashboardData(data.dashboardData)
+      }else{
+        toast.error(data.message)
       }
+    }catch(error){
+      toast.error(error.message)
+    } finally{
+      setLoaded(true)
     }
-    fetchDashboardData()
-    return () => { cancelled = true }
-  }, [backendUrl, getToken])
+  }
+  useEffect(() =>{
+    if(isEducator){
+      fetchDashboardData()
+    }
+  },[isEducator])
 
   if (!loaded) return <Loading />
 

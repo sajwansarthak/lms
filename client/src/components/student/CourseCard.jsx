@@ -24,6 +24,7 @@ function CourseCard({course}) {
         {/* course Title */}
         <h3 className='text-base font-semibold'>{course.courseTitle}</h3>
         {/* educator name */}
+        {/* Displaying educator name from database done with backend connect  */}
         <p className='text-gray-500'>{course?.educator?.name || "Unknown Educator"}</p>
         {/* now we will create course rating - avg rating, stars out of 5, total rating */}
         <div className='flex item-center space-x-2'>
