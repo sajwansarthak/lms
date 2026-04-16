@@ -1,13 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
 // so that we can add a unique id for each course
 import uniqid from 'uniqid'
 //So that we can write rich-text in course description
 import Quill from 'quill'
 import { assets } from '../../assets/assets'
-
+import { AppContext } from '../../context/AddContext'
+import {toast} from 'react-toastify'
+import axios from 'axios'
 
 const AddCourse =() => {
 
+
+  //Adding apis to educator
+  const {backendUrl,getToken} = useContext(AppContext )
   const quillRef = useRef(null)
   const editorRef = useRef(null)
 
@@ -42,7 +47,7 @@ const AddCourse =() => {
           chapterTitle: title,
           chapterContent: [],
           collapsed: false,
-          chapterOrder: chapters.length > 0 ? chapters.slice[-1][0].chapterOrder + 1:1,
+          chapterOrder: chapters.length > 0 ? chapters[chapters.length-1].chapterOrder + 1:1,
         };
         setChapters([...chapters, newChapter]);
       }
@@ -98,7 +103,44 @@ const AddCourse =() => {
   }
   // Font handler function
   const handleSubmit = async(e) =>{
-    e.preventDefault()
+    try{
+      e.preventDefault()
+      if(!image){
+        toast.error('Thumbnail Not Selected')
+      }
+      //If we have image available
+      const courseData = {
+        courseTitle,
+        courseDescription: quillRef.current.root.innerHTML,
+        coursePrice: Number(coursePrice),
+        discount: Number(discount),
+        courseContent: chapters,
+        isPublished: true
+      }
+      //Using this courseData we will create a form to send data to our api 
+      const formData = new FormData()
+      formData.append('courseData',JSON.stringify(courseData))
+      formData.append('image',image)
+
+      //Now creating api 
+      const token = await getToken()
+      const {data} = await axios.post(backendUrl + '/api/educator/add-course',formData,{headers:{Authorization: `Bearer ${token}`}})
+
+      if(data.success){
+        toast.success(data.message)
+        //resetting all the input fields
+        setCourseTitle('')
+        setCoursePrice(0)
+        setDiscount(0)
+        setImage(null)
+        setChapters([])
+        quillRef.current.root.innerHTML = ""
+      }else{
+        toast.error(data.message)
+      }
+    }catch(error){
+      toast.error(error.message)
+    }
   }
   useEffect(() =>{
     //Initiate Quill only once
@@ -136,12 +178,12 @@ const AddCourse =() => {
           <div>
             <p>Course Thumbnail</p>
             {/* here when we click on label tag it opens a window to upload image file */}
-            <label htmlFor="thumbnailImage" className='flex items-center gap-3'>
+            <label htmlFor="thumbnailImage" className='flex items-center gap-3 cursor-pointer'>
               <img src={assets.file_upload_icon} alt="" className='p-3 bg-blue-500 rounded' />
               {/* store the uploaded image in a file */}
               <input type="file" id='thumbnailImage' onChange={e => setImage(e.target.files[0])} accept='image/*' hidden />
               {/* display image if its uploaded  */}
-              <img src={image ? URL.createObjectURL(image) : ''} alt="" />
+              <img src={image ? URL.createObjectURL(image) : ''} alt="" className='w-20 h-9.5 object-cover rounded border border-gray-300'/>
             </label>
           </div>
         </div>
