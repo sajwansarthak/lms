@@ -130,6 +130,39 @@ Vite will print the local URL (commonly `http://localhost:5173`).
 - **`npm run server`**: Start API with nodemon
 - **`npm start`**: Start API with node
 
+## Deployment (Vercel)
+
+This project is deployed on **Vercel**.
+
+### Live URLs
+
+- **Frontend**: `https://lms-frontend-git-main-sajwansarthaks-projects.vercel.app`
+
+### Frontend (Vite)
+
+- **Build command**: `npm run build`
+- **Output**: `dist`
+- **Environment variables (Vercel → Project → Settings → Environment Variables)**:
+  - `VITE_CLERK_PUBLISHABLE_KEY`
+  - `VITE_BACKEND_URL` (your deployed API base URL, e.g. `https://<your-backend>.vercel.app`)
+  - `VITE_CURRENCY`
+
+### Backend (Express as Serverless)
+
+The Express app is exported from `server/server.js` and will run as a serverless function on Vercel.
+
+- **Environment variables (Vercel)**:
+  - `MONGODB_URI`
+  - `CLERK_SECRET_KEY`
+  - `CLERK_WEBHOOK_SECRET`
+  - `STRIPE_SECRET_KEY`
+  - `CURRENCY`
+  - `CLOUDINARY_CLOUD_NAME`
+  - `CLOUDINARY_API_KEY`
+  - `CLOUDINARY_API_SECRET`
+
+> Tip: In production you usually don’t need to set `PORT` on Vercel.
+
 ## Webhooks (Clerk)
 
 The backend exposes a Clerk webhook endpoint:
@@ -138,7 +171,7 @@ The backend exposes a Clerk webhook endpoint:
 
 In the Clerk Dashboard, create a webhook and point it to:
 - Local dev: use a tunneling tool (e.g. ngrok) and set the public URL + `/clerk`
-- Production: your deployed API URL + `/clerk`
+- Production (Vercel): your deployed API URL + `/clerk`
 
 Make sure `CLERK_WEBHOOK_SECRET` matches the webhook signing secret from Clerk.
 
@@ -159,8 +192,4 @@ Configure the endpoint in Stripe and set the webhook secret as needed by your im
 - **CORS / API URL issues**
   - Ensure `VITE_BACKEND_URL` points to your running server.
   - Ensure the server is running and accessible from the browser.
-
-## License
-
-Add your license here (e.g. MIT) or remove this section if not applicable.
 
