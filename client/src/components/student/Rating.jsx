@@ -1,8 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 
 const Rating =({initialRating,onRate}) => {
 
   const [rating,setRating] = useState(initialRating ?? 0 )
+  // ✅ Sync internal state when initialRating loads in async
+  useEffect(() => {
+    if (initialRating) {
+      setRating(initialRating)
+    }
+  }, [initialRating])
   // function to handle ratings
   const handleRating =(value) => {
     setRating(value)
