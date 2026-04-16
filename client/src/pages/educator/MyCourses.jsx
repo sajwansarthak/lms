@@ -5,33 +5,29 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 const MyCourses =() => {
-  const {currency, backendUrl, getToken} = useContext(AppContext)
+  //Getting the user Educator courses from the backend for educator dashboard with data 
+  const {currency, backendUrl, getToken,isEducator} = useContext(AppContext)
   const [courses,setCourses] =useState(null)
 
-  useEffect(() =>{
-    let cancelled = false
-    const load = async () => {
-      try {
-        const token = await getToken()
-        const { data } = await axios.get(`${backendUrl}/api/educator/courses`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        if (cancelled) return
-        if (data.success) setCourses(data.courses ?? [])
-        else {
-          setCourses([])
-          toast.error(data.message)
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setCourses([])
-          toast.error(e.message)
-        }
-      }
+  const fetchEducatorCourses = async () =>{
+    try{
+      const token = await getToken()
+      const {data} = await axios.get(backendUrl + '/api/educator/courses',{headers:{Authorization: `Bearer ${token}`}})
+
+      data.success && setCourses(data.courses)
+    }catch(error){
+      toast.error(error.message)
     }
-    load()
-    return () => { cancelled = true }
-  }, [backendUrl, getToken])
+  }
+
+
+  useEffect(() =>{
+    if(isEducator){
+      fetchEducatorCourses()
+    }
+  },[isEducator])
+
+
 
   return courses !== null ? (
     <div className='h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0 '>
