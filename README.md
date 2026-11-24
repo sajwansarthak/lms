@@ -71,7 +71,7 @@ VITE_CURRENCY=USD
 PORT=3000
 
 # MongoDB
-MONGODB_URI=mongodb+srv://...
+MONGODB_URL=mongodb+srv://...   # without trailing db name; '/lms' is appended
 
 # Clerk
 CLERK_SECRET_KEY=sk_test_...
@@ -79,17 +79,16 @@ CLERK_WEBHOOK_SECRET=whsec_...
 
 # Stripe
 STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 
 # App
 CURRENCY=USD
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_NAME=...
 CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
+CLOUDINARY_SECRET_KEY=...
 ```
-
-> Note: Some variable names may differ slightly depending on your `server/configs/*.js` implementation. If the server logs complain about missing config, align the env var names accordingly.
 
 ## Install & Run (Local)
 
@@ -152,14 +151,15 @@ This project is deployed on **Vercel**.
 The Express app is exported from `server/server.js` and will run as a serverless function on Vercel.
 
 - **Environment variables (Vercel)**:
-  - `MONGODB_URI`
+  - `MONGODB_URL`
   - `CLERK_SECRET_KEY`
   - `CLERK_WEBHOOK_SECRET`
   - `STRIPE_SECRET_KEY`
+  - `STRIPE_WEBHOOK_SECRET`
   - `CURRENCY`
-  - `CLOUDINARY_CLOUD_NAME`
+  - `CLOUDINARY_NAME`
   - `CLOUDINARY_API_KEY`
-  - `CLOUDINARY_API_SECRET`
+  - `CLOUDINARY_SECRET_KEY`
 
 > Tip: In production you usually don’t need to set `PORT` on Vercel.
 
@@ -181,7 +181,7 @@ The backend exposes a Stripe webhook endpoint:
 
 - **POST** `'/stripe'`
 
-Configure the endpoint in Stripe and set the webhook secret as needed by your implementation.
+Configure the endpoint in Stripe (events: `payment_intent.succeeded`, `payment_intent.payment_failed`) and set `STRIPE_WEBHOOK_SECRET` to its signing secret.
 
 ## Common Troubleshooting
 
@@ -192,4 +192,3 @@ Configure the endpoint in Stripe and set the webhook secret as needed by your im
 - **CORS / API URL issues**
   - Ensure `VITE_BACKEND_URL` points to your running server.
   - Ensure the server is running and accessible from the browser.
-

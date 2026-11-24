@@ -33,11 +33,6 @@ export const AppContextProvider = (props) =>{
     //now to add data we have to create a function which can perform it 
     //fetch all courses
     const fetchAllCourses = async ()=>{
-        //here we have to store data from assets file in the state defined above
-        //setAllCourses(dummyCourses)
-        //now pass allCourses in const value so it can be used anywhere in the project
-
-        //After backend completed
         try{
             //provide backend url
             const {data} = await axios.get(backendUrl + '/api/course/all')
@@ -70,7 +65,6 @@ export const AppContextProvider = (props) =>{
         }
         try{
             const token = await getToken()
-            console.log(token)
             const {data} = await axios.get(backendUrl + '/api/user/data',{headers:{
                 Authorization: `Bearer ${token}`
             }})
@@ -128,8 +122,6 @@ export const AppContextProvider = (props) =>{
     }
     //Function to get the user Enrolled Courses
     const fetchUserEnrolledCourses = async () =>{
-        //setEnrolledCourses(dummyCourses)
-        //Now we will fetch userEnrolledCourses from the api
         try{
             const token = await getToken()
             const {data} = await axios.get(backendUrl + '/api/user/enrolled-courses',{headers: {Authorization: `Bearer ${token}`}})
@@ -148,22 +140,12 @@ export const AppContextProvider = (props) =>{
      //using the fetchAllCourses funtion we have created
      useEffect(() =>{
         fetchAllCourses()
-        //We will remove this function from here and add it with fetchUserData because it will run when we get userData
-        //fetchUserEnrolledCourses()
     },[])
 
-    //function to diaplay token
-    //we do not require this token now when we fetchUserData while connecting backednd to frontend
-    // const logToken = async () =>{
-    //     // this will display the token in frontend console
-    //     console.log(await getToken())
-    // }
     //useEffect to get auth token
     useEffect(() =>{
         if(user){
-            //logToken()
             fetchUserData()
-            //fetchUserEnrolledCourses()
         }
     },[user])
 

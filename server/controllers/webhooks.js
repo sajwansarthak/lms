@@ -54,6 +54,7 @@ export const clerkWebhooks = async (req,res) =>{
             }
 
             default:
+                res.json({})
                 break;
         }
     } catch(error){
@@ -76,7 +77,7 @@ export const stripeWebhooks = async (request, response) => {
     event = Stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   }
   catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Handle the event

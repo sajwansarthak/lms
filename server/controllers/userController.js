@@ -175,7 +175,7 @@ export const updateUserCourseProgress = async (req,res) =>{
 export const getUserCourseProgress = async (req,res) =>{
     try{
         const userId = getClerkUserId(req)
-        const {courseId,lectureId} = req.body
+        const {courseId} = req.body
         //finding progress data using courseProgress model 
         const progressData = await CourseProgress.findOne({userId,courseId})
         res.json({success: true,progressData})

@@ -18,8 +18,6 @@ function Player() {
   const {courseId} =useParams()
   //To get individual course data
   const [courseData,setCourseData] = useState(null)
-  //function to get individual course data
-  //const [completedLectures, setCompletedLectures] = useState(() => new Set())
   //Another state for playerData
   const [playerData,setPlayerData] =useState(null)
   // Another state variale for toggle function 
@@ -28,11 +26,6 @@ function Player() {
   const [progressData,setProgressData] = useState(null)
   //
   const [initialRating,setInitialRating] = useState(0)
-
-  // useEffect(() =>{
-  //   const found = enrolledCourses.find((course) => String(course._id) === String(courseId))
-  //   setCourseData(found ?? null)
-  // },[enrolledCourses, courseId])
 
   const getCourseData = () =>{
     if (!enrolledCourses || !courseId) return; // Guard against undefined
@@ -59,10 +52,6 @@ function Player() {
     }
     ))
   })
-  useEffect(() => {
-    fetchUserEnrolledCourses() // ✅ fetch fresh data on mount
-    getCourseProgress()
-  }, [])
   useEffect(() =>{
     if(enrolledCourses && enrolledCourses.length > 0){
       getCourseData()
@@ -126,10 +115,10 @@ function Player() {
     )
     return match ? match[1] : null
   }
-  useEffect(() =>{
+  useEffect(() => {
+    fetchUserEnrolledCourses() // fetch fresh data on mount
     getCourseProgress()
-        
-  },[])
+  }, [])
 
 
   return courseData ? (
